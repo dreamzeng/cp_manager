@@ -1,28 +1,18 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" placeholder="标题" v-model="listQuery.title">
-      </el-input>
-
-      <el-select clearable style="width: 90px" class="filter-item" v-model="listQuery.importance" placeholder="重要性">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item">
-        </el-option>
-      </el-select>
-
-      <el-select clearable class="filter-item" style="width: 130px" v-model="listQuery.type" placeholder="类型">
-        <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key">
-        </el-option>
-      </el-select>
-
-      <el-select @change='handleFilter' style="width: 120px" class="filter-item" v-model="listQuery.sort" placeholder="排序">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key">
-        </el-option>
-      </el-select>
+      <el-form :inline="true" :model="listQuery">
+        <el-form-item class="el-form-item-rest" label="类型">
+            <el-select clearable class="filter-item" style="width: 130px" v-model="listQuery.code" placeholder="类型">
+              <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key">
+              </el-option>
+            </el-select>
+        </el-form-item>
 
       <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="edit">添加</el-button>
-      <el-button class="filter-item" type="primary" icon="document" @click="handleDownload">导出</el-button>
-      <el-checkbox class="filter-item" @change='tableKey=tableKey+1' v-model="showAuditor">显示审核人</el-checkbox>
+
+      </el-form>
     </div>
 
     <el-table :data="list" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">
@@ -108,16 +98,6 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="阅读数统计" :visible.sync="dialogPvVisible" size="small">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="渠道"> </el-table-column>
-        <el-table-column prop="pv" label="pv"> </el-table-column>
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">确 定</el-button>
-      </span>
-    </el-dialog>
-
   </div>
 </template>
 
@@ -128,7 +108,7 @@
     import {fetchList} from 'api/lotteryData'
 
     const calendarTypeOptions = [
-      { key: 'CN', display_name: '中国' },
+      { key: 'ssq', display_name: 'ssq' },
       { key: 'US', display_name: '美国' },
       { key: 'JP', display_name: '日本' },
       { key: 'EU', display_name: '欧元区' }
@@ -141,7 +121,7 @@
     }, {});
 
     export default {
-      name: 'table_demo',
+      name: 'lotteryData',
       data() {
         return {
           list: null,
@@ -202,6 +182,8 @@
           this.listLoading = true;
           fetchList(this.listQuery).then(response => {
             let res = response.data;
+            this.list = null;
+            this.total = 0;
             if(res.code == 1){
               this.list = res.data && res.data.list;
               this.total = res.data && res.data.total;
