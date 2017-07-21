@@ -21,18 +21,9 @@ export function historyUpdate(params) {
     data: params
   });
 }
-/*export function logout() {
+export function historyDel(id) {
   return fetch({
-    url: '/login/logout',
-    method: 'post'
+    url: '/history/delete/'+id,
+    method: 'POST'
   });
 }
-
-export function getInfo(token) {
-  return fetch({
-    url: '/user/info',
-    method: 'get',
-    params: { token }
-  });
-}
-*/

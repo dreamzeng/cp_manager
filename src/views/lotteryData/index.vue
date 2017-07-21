@@ -73,7 +73,7 @@
         </el-form-item>
 
         <el-form-item label="时间" prop="time">
-          <el-date-picker v-model="formParam.time" type="datetime" placeholder="选择日期时间">
+          <el-date-picker v-model="formParam.time" @change="timeChang" type="datetime" placeholder="选择日期时间">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -89,7 +89,7 @@
 
 <script>
     import { parseTime } from 'utils';
-    import {fetchList,historyAdd,historyUpdate} from 'api/lotteryData'
+    import {fetchList,historyAdd,historyUpdate,historyDel} from 'api/lotteryData'
     import {lotteryList} from 'api/lottery'
 
     export default {
@@ -117,7 +117,7 @@
             ],
             number:[{required: true, message: '请输入开奖号码', trigger: 'blur' }],
             phase:[{required: true, message: '请输入期号', trigger: 'blur' }],
-            time:[{type: 'date',required: true, message: '请选择开奖时间', trigger: 'change' }]
+            time:[{type: 'string',required: true, message: '请选择开奖时间', trigger: 'change' }]
           },
           calendarTypeOptions:null, //彩种
           dialogFormVisible: false,
@@ -232,14 +232,27 @@
         },
          // 删除
         handleDelete(row) {
-          this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success',
-            duration: 2000
-          });
-          const index = this.list.indexOf(row);
-          this.list.splice(index, 1);
+            let _this = this;
+            this.$confirm('确认删除 ID：'+row.id+'？', '确定删除', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+            }).then(() => {
+              historyDel(row.id).then(response=>{
+                 _this.getList();
+                    let res = response.data;
+                    if(res.code == 1){
+                      _this.$notify({
+                        title: '成功',
+                        message: res.message,
+                        type: 'success',
+                        duration: 2000
+                      });
+                    }
+              });
+            }).catch(() => {
+
+            });
         },
         resetFormParam() {
           this.formParam = {
