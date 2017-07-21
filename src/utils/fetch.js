@@ -11,7 +11,7 @@ const service = axios.create({
   //withCredentials: true,
   headers: {
     'X-Requested-With': 'XMLHttpRequest',
-    'content-Type':'application/x-www-form-urlencoded'
+    'content-Type':'application/json'
   }
 });
 console.log(process.env.BASE_API);
@@ -23,7 +23,8 @@ service.interceptors.request.use(config => {
     config.headers['token'] = store.getters.token; // 让每个请求携带token--['token']为自定义key 请根据实际情况自行修改
 
   }
-  config.data = qs.stringify(config.data);
+  //config.data = qs.stringify(config.data);
+  config.data = config.data;
   return config;
 }, error => {
   // Do something with request error

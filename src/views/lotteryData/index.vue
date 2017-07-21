@@ -2,8 +2,8 @@
   <div class="app-container calendar-list-container">
     <div class="filter-container">
       <el-form :inline="true" :model="listQuery">
-        <el-form-item class="el-form-item-rest" label="类型">
-            <el-select clearable class="filter-item" style="width: 130px" v-model="listQuery.code" placeholder="类型">
+        <el-form-item class="el-form-item-rest" label="彩种">
+            <el-select clearable class="filter-item" style="width: 130px" v-model="listQuery.code" placeholder="彩种">
               <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key">
               </el-option>
             </el-select>
@@ -21,31 +21,31 @@
           <span>{{scope.row.id}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="code">
+      <el-table-column align="center" label="彩种">
         <template scope="scope">
           <span>{{scope.row.code}}</span>
         </template>
       </el-table-column>
-      <el-table-column  align="center" label="number">
+      <el-table-column  align="center" label="开奖号码">
         <template scope="scope">
           <span>{{scope.row.number}}</span>
         </template>
       </el-table-column>
-      <el-table-column  align="center" label="phase">
+      <el-table-column  align="center" label="期号">
         <template scope="scope">
           <span>{{scope.row.phase}}</span>
         </template>
       </el-table-column>
-      <el-table-column  align="center" label="time">
+      <el-table-column  align="center" label="开奖时间">
         <template scope="scope">
           <span>{{scope.row.time}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作">
         <template scope="scope">
-          <el-button size="small" type="success" @click="handleModifyStatus(scope.row,'published')">编辑
+          <el-button size="small" type="success" @click="handleUpdate(scope.row)">编辑
           </el-button>
-          <el-button size="small" type="danger" @click="handleModifyStatus(scope.row,'deleted')">删除
+          <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -57,44 +57,30 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form class="small-space" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-        <el-form-item label="类型">
-          <el-select class="filter-item" v-model="temp.type" placeholder="请选择">
-            <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key">
-            </el-option>
-          </el-select>
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" size="tiny">
+      <el-form class="small-space" :model="formParam" :rules="rules" ref="formParam" label-position="left" label-width="120px">
+        <el-form-item label="彩种" prop="code">
+          <el-select clearable class="filter-item" filterable style="width: 130px" v-model="formParam.code" placeholder="彩种">
+              <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key">
+              </el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="开奖号码" prop="number">
+          <el-input v-model="formParam.number"></el-input>
+        </el-form-item>
+        <el-form-item label="期号" prop="phase">
+          <el-input v-model="formParam.phase"></el-input>
         </el-form-item>
 
-        <el-form-item label="状态">
-          <el-select class="filter-item" v-model="temp.status" placeholder="请选择">
-            <el-option v-for="item in  statusOptions" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="时间">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="选择日期时间">
+        <el-form-item label="时间" prop="time">
+          <el-date-picker v-model="formParam.time" type="datetime" placeholder="选择日期时间">
           </el-date-picker>
-        </el-form-item>
-
-        <el-form-item label="标题">
-          <el-input v-model="temp.title"></el-input>
-        </el-form-item>
-
-        <el-form-item label="重要性">
-          <el-rate style="margin-top:8px;" v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']"></el-rate>
-        </el-form-item>
-
-        <el-form-item label="点评">
-          <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入内容" v-model="temp.remark">
-          </el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="create">确 定</el-button>
-        <el-button v-else type="primary" @click="update">确 定</el-button>
+        <el-button v-if="dialogStatus=='create'" type="primary" @click="create('formParam')">确 定</el-button>
+        <el-button v-else type="primary" @click="update('formParam')">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -102,23 +88,9 @@
 </template>
 
 <script>
-    import {fetchPv } from 'api/article_table';
     import { parseTime } from 'utils';
-
-    import {fetchList} from 'api/lotteryData'
-
-    const calendarTypeOptions = [
-      { key: 'ssq', display_name: 'ssq' },
-      { key: 'US', display_name: '美国' },
-      { key: 'JP', display_name: '日本' },
-      { key: 'EU', display_name: '欧元区' }
-    ];
-
-    // arr to obj
-    const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-      acc[cur.key] = cur.display_name;
-      return acc
-    }, {});
+    import {fetchList,historyAdd,historyUpdate} from 'api/lotteryData'
+    import {lotteryList} from 'api/lottery'
 
     export default {
       name: 'lotteryData',
@@ -130,54 +102,38 @@
           listQuery: {
             page: 1,
             limit: 20,
-            code:'ssq',
-            importance: undefined,
-            title: undefined,
-            type: undefined,
-            sort: '+id'
+            code:'ssq'
           },
-          temp: {
+          formParam: {
             id: undefined,
-            importance: 0,
-            remark: '',
-            timestamp: 0,
-            title: '',
-            type: '',
-            status: 'published'
+            code:'',
+            number: '',
+            phase: '',
+            time: ''
           },
-          importanceOptions: [1, 2, 3],
-          calendarTypeOptions,
-          sortOptions: [{ label: '按ID升序列', key: '+id' }, { label: '按ID降序', key: '-id' }],
-          statusOptions: ['published', 'draft', 'deleted'],
+          rules: {
+            code:[
+                {required: true, message: '请选择彩种', trigger: 'change'}
+            ],
+            number:[{required: true, message: '请输入开奖号码', trigger: 'blur' }],
+            phase:[{required: true, message: '请输入期号', trigger: 'blur' }],
+            time:[{type: 'date',required: true, message: '请选择开奖时间', trigger: 'change' }]
+          },
+          calendarTypeOptions:null, //彩种
           dialogFormVisible: false,
           dialogStatus: '',
           textMap: {
             update: '编辑',
             create: '创建'
-          },
-          dialogPvVisible: false,
-          pvData: [],
-          showAuditor: false,
-          tableKey: 0
+          }
         }
       },
       created() {
+        this.getLottery();
         this.getList();
       },
-      filters: {
-        statusFilter(status) {
-          const statusMap = {
-            published: 'success',
-            draft: 'gray',
-            deleted: 'danger'
-          };
-          return statusMap[status]
-        },
-        typeFilter(type) {
-          return calendarTypeKeyValue[type]
-        }
-      },
       methods: {
+        //获取数据列表
         getList() {
           this.listLoading = true;
           fetchList(this.listQuery).then(response => {
@@ -191,50 +147,90 @@
             this.listLoading = false;
           })
         },
-
-
-
-
-
-
-
+        //获取采种数据
+        getLottery(){
+          lotteryList().then(response=>{
+              let res = response.data;
+              if(res.code == 1){
+                let temp = [],list = res.data.list;
+                for(let i = 0,l = list.length;i < l;i++){
+                    temp.push({
+                      key:list[i]['code'],
+                      display_name:list[i]['name']
+                    })
+                }
+                this.calendarTypeOptions = temp;
+              }
+          })       
+        },
+        //查询
         handleFilter() {
           this.getList();
         },
+        //分页信息
         handleSizeChange(val) {
           this.listQuery.limit = val;
           this.getList();
         },
+        //分页信息
         handleCurrentChange(val) {
           this.listQuery.page = val;
           this.getList();
         },
-        timeFilter(time) {
-          if (!time[0]) {
-            this.listQuery.start = undefined;
-            this.listQuery.end = undefined;
-            return;
-          }
-          this.listQuery.start = parseInt(+time[0] / 1000);
-          this.listQuery.end = parseInt((+time[1] + 3600 * 1000 * 24) / 1000);
-        },
-        handleModifyStatus(row, status) {
-          this.$message({
-            message: '操作成功',
-            type: 'success'
-          });
-          row.status = status;
-        },
+        //创建
         handleCreate() {
-          this.resetTemp();
+          this.resetFormParam();
           this.dialogStatus = 'create';
           this.dialogFormVisible = true;
         },
+        //更新
         handleUpdate(row) {
-          this.temp = Object.assign({}, row);
+          this.formParam = Object.assign({}, row);
+          let temp = this.formParam.time;
           this.dialogStatus = 'update';
           this.dialogFormVisible = true;
         },
+        create(formName) {
+          let _this = this;
+          this.$refs[formName].validate(function(valid){
+              if (valid) {
+                  historyAdd(_this.formParam).then(response=>{
+                    _this.getList();
+                    let res = response.data;
+                    if(res.code == 1){
+                        _this.dialogFormVisible = false;
+                        _this.$notify({
+                          title: '成功',
+                          message: res.message,
+                          type: 'success',
+                          duration: 2000
+                        });
+                    }
+                })
+              }
+          })          
+        },
+        update(formName) {
+          let _this = this;
+          this.$refs[formName].validate(function(valid){
+              if (valid) {
+                  historyUpdate(_this.formParam).then(response=>{
+                    _this.getList();
+                    let res = response.data;
+                    if(res.code == 1){
+                        _this.dialogFormVisible = false;
+                        _this.$notify({
+                          title: '成功',
+                          message: res.message,
+                          type: 'success',
+                          duration: 2000
+                        });
+                    }
+                })
+              }
+          })  
+        },
+         // 删除
         handleDelete(row) {
           this.$notify({
             title: '成功',
@@ -245,70 +241,17 @@
           const index = this.list.indexOf(row);
           this.list.splice(index, 1);
         },
-        create() {
-          this.temp.id = parseInt(Math.random() * 100) + 1024;
-          this.temp.timestamp = +new Date();
-          this.temp.author = '原创作者';
-          this.list.unshift(this.temp);
-          this.dialogFormVisible = false;
-          this.$notify({
-            title: '成功',
-            message: '创建成功',
-            type: 'success',
-            duration: 2000
-          });
-        },
-        update() {
-          this.temp.timestamp = +this.temp.timestamp;
-          for (const v of this.list) {
-            if (v.id === this.temp.id) {
-              const index = this.list.indexOf(v);
-              this.list.splice(index, 1, this.temp);
-              break;
-            }
-          }
-          this.dialogFormVisible = false;
-          this.$notify({
-            title: '成功',
-            message: '更新成功',
-            type: 'success',
-            duration: 2000
-          });
-        },
-        resetTemp() {
-          this.temp = {
+        resetFormParam() {
+          this.formParam = {
             id: undefined,
-            importance: 0,
-            remark: '',
-            timestamp: 0,
-            title: '',
-            status: 'published',
-            type: ''
+            code:'',
+            number: '',
+            phase: '',
+            time: ''
           };
         },
-        handleFetchPv(pv) {
-          fetchPv(pv).then(response => {
-            this.pvData = response.data.pvData;
-            this.dialogPvVisible = true;
-          })
-        },
-        handleDownload() {
-          require.ensure([], () => {
-            const { export_json_to_excel } = require('vendor/Export2Excel');
-            const tHeader = ['时间', '地区', '类型', '标题', '重要性'];
-            const filterVal = ['timestamp', 'province', 'type', 'title', 'importance'];
-            const data = this.formatJson(filterVal, this.list);
-            export_json_to_excel(tHeader, data, 'table数据');
-          })
-        },
-        formatJson(filterVal, jsonData) {
-          return jsonData.map(v => filterVal.map(j => {
-            if (j === 'timestamp') {
-              return parseTime(v[j])
-            } else {
-              return v[j]
-            }
-          }))
+        timeChang(val) {
+            this.formParam.time = val;
         }
       }
     }

@@ -7,7 +7,20 @@ export function fetchList(query) {
     params: query
   });
 }
-
+export function historyAdd(params) {
+  return fetch({
+    url: '/history/add',
+    method: 'POST',
+    data: params
+  });
+}
+export function historyUpdate(params) {
+  return fetch({
+    url: '/history/update',
+    method: 'POST',
+    data: params
+  });
+}
 /*export function logout() {
   return fetch({
     url: '/login/logout',

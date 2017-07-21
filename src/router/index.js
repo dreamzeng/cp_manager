@@ -45,22 +45,22 @@ export const constantRouterMap = [
     { path: '/authredirect', component: authRedirect, hidden: true },
     { path: '/404', component: Err404, hidden: true },
     { path: '/401', component: Err401, hidden: true },
-  {
-    path: '/',
-    component: Layout,
-    redirect: '/home',
-    name: '首页',
-    hidden: true,
-    children: [{ path: 'home', component: home }]
-  },
-  {
-    path: '/introduction',
-    component: Layout,
-    redirect: '/introduction/index',
-    icon: 'xinrenzhinan',
-    noDropdown: true,
-    children: [{ path: 'index', component: Introduction, name: '简述' }]
-  }
+    {
+      path: '/',
+      component: Layout,
+      redirect: '/home',
+      name: '首页',
+      hidden: true,
+      children: [{ path: 'home', component: home }]
+    },
+    {
+      path: '/introduction',
+      component: Layout,
+      redirect: '/introduction/index',
+      icon: 'xinrenzhinan',
+      noDropdown: true,
+      children: [{ path: 'index', component: Introduction, name: '简述' }]
+    }
 ]
 
 export default new Router({

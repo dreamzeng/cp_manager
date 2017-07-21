@@ -85,36 +85,11 @@ const user = {
     // 获取用户信息
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
-        commit('SET_ROLES', ['admin']);
+        let roles = state.userName;
+        commit('SET_ROLES', [roles]);
         resolve();
-        /*getInfo(state.token).then(response => {
-          const data = response.data;
-          commit('SET_ROLES', data.role);
-          commit('SET_NAME', data.name);
-          commit('SET_AVATAR', data.avatar);
-          commit('SET_UID', data.uid);
-          commit('SET_INTRODUCTION', data.introduction);
-          resolve(response);
-        }).catch(error => {
-          reject(error);
-        });*/
       });
     },
-
-    // 第三方验证登录
-    LoginByThirdparty({ commit, state }, code) {
-      return new Promise((resolve, reject) => {
-        commit('SET_CODE', code);
-        loginByThirdparty(state.status, state.email, state.code, state.auth_type).then(response => {
-          commit('SET_TOKEN', response.data.token);
-          Cookies.set('Admin-Token', response.data.token);
-          resolve();
-        }).catch(error => {
-          reject(error);
-        });
-      });
-    },
-
 
     // 登出
     LogOut({ commit, state }) {
@@ -137,16 +112,6 @@ const user = {
         Cookies.remove('Admin-Token');
         resolve();
       });
-    },
-
-    // 动态修改权限
-    ChangeRole({ commit }, role) {
-      return new Promise(resolve => {
-        commit('SET_ROLES', [role]);
-        commit('SET_TOKEN', role);
-        Cookies.set('Admin-Token', role);
-        resolve();
-      })
     }
   }
 };
