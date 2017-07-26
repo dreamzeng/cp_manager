@@ -1,5 +1,7 @@
 import fetch from 'utils/fetch';
 
+//开奖数据
+
 export function fetchList(query) {
   return fetch({
     url: '/history',

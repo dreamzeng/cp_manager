@@ -12,8 +12,6 @@ const authRedirect = _import('login/authredirect');
 
 const home = _import('home/index');
 
-/* dashboard */
-/*const dashboard = _import('dashboard/index');*/
 
 /* Introduction */
 const Introduction = _import('introduction/index');
@@ -28,7 +26,8 @@ const ErrorLog = _import('errlog/index');
 
 /* 开奖数据 */
 const LotteryData  = _import('lotteryData/index');
-
+/* 采种数据 */
+const Lottery = _import('lottery/index');
 
 Vue.use(Router);
 
@@ -77,9 +76,18 @@ export const asyncRouterMap = [
     name: '开奖数据',
     icon: 'wujiaoxing',
     children: [
-        { path: 'index', component: LotteryData, name: '列表'}
+        { path: 'index', component: LotteryData, name: '开奖数据列表'}
     ]
   },
-
+  {
+    path: '/Lottery',
+    component: Layout,
+    redirect: 'noredirect',
+    name: '彩种数据',
+    icon: 'zonghe',
+    children: [
+        { path: 'index', component: Lottery, name: '彩种数据列表'}
+    ]
+  },
   { path: '*', redirect: '/404', hidden: true }
 ];

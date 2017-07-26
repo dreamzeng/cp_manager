@@ -8,10 +8,9 @@
               </el-option>
             </el-select>
         </el-form-item>
-
-      <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="edit">添加</el-button>
-
+        
+        <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
+        <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="edit">添加</el-button>
       </el-form>
     </div>
 
@@ -41,7 +40,7 @@
           <span>{{scope.row.time}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作">
+      <el-table-column fixed="right" align="center" label="操作">
         <template scope="scope">
           <el-button size="small" type="success" @click="handleUpdate(scope.row)">编辑
           </el-button>
@@ -88,7 +87,6 @@
 </template>
 
 <script>
-    import { parseTime } from 'utils';
     import {fetchList,historyAdd,historyUpdate,historyDel} from 'api/lotteryData'
     import {lotteryList} from 'api/lottery'
 

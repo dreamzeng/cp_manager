@@ -246,3 +246,6 @@ export function parseTime(time, cFormat) {
    };
  }
 
+ export function uploadApi(){
+   return process.env.BASE_API + '/upload/image';
+ }

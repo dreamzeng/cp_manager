@@ -38,8 +38,8 @@
         };
         return {
           loginForm: {
-            username: '',
-            password: ''
+            username: 'admin',
+            password: 'admin.com'
           },
           loginRules: {
             username: [
