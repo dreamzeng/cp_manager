@@ -88,7 +88,7 @@
           <el-input v-model="formParam.name"></el-input>
         </el-form-item>
         <el-form-item label="彩种图标">
-          <el-upload class="upload-demo" :action="uploadApi"
+          <el-upload class="image-uploader" :action="uploadApi"
                       :file-list="fileList"
                       :headers="headers"
                       :on-remove="handleRemove"

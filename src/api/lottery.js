@@ -1,5 +1,5 @@
 import fetch from 'utils/fetch';
-//采种
+//彩种
 
 export function lotteryList(query) {
   return fetch({

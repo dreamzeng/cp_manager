@@ -14,7 +14,7 @@ export function loginByEmail(username, password) {
 
 export function logout() {
   return fetch({
-    url: '/login/logout',
+    url: '/admin/logout',
     method: 'post'
   });
 }
