@@ -26,8 +26,10 @@ const ErrorLog = _import('errlog/index');
 
 /* 开奖数据 */
 const LotteryData  = _import('lotteryData/index');
-/* 采种数据 */
+/* 彩种数据 */
 const Lottery = _import('lottery/index');
+/* 频道 */
+const Channel = _import('channel/index')
 
 Vue.use(Router);
 
@@ -52,6 +54,7 @@ export const constantRouterMap = [
       hidden: true,
       children: [{ path: 'home', component: home }]
     },
+    
     {
       path: '/introduction',
       component: Layout,
@@ -76,7 +79,7 @@ export const asyncRouterMap = [
     name: '开奖数据',
     icon: 'wujiaoxing',
     children: [
-        { path: 'index', component: LotteryData, name: '开奖数据列表'}
+        { path: 'index', component: LotteryData, name: '开奖列表'}
     ]
   },
   {
@@ -86,7 +89,17 @@ export const asyncRouterMap = [
     name: '彩种数据',
     icon: 'zonghe',
     children: [
-        { path: 'index', component: Lottery, name: '彩种数据列表'}
+        { path: 'index', component: Lottery, name: '彩种列表'}
+    ]
+  },
+  {
+    path: '/Channel',
+    component:Layout,
+    redirect:'noredirect',
+    name:'频道',
+    icon:'location',
+    children: [
+        { path: 'index', component: Channel, name: '频道列表'}
     ]
   },
   { path: '*', redirect: '/404', hidden: true }

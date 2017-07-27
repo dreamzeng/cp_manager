@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-form :inline="true" :model="listQuery">
         <el-form-item class="el-form-item-rest" label="彩种">
-            <el-select clearable class="filter-item"  v-model="listQuery.code" placeholder="彩种">
+            <el-select clearable class="filter-item" v-model="listQuery.parent_code" placeholder="彩种">
               <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key">
               </el-option>
             </el-select>
@@ -20,24 +20,34 @@
           <span>{{scope.row.id}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="彩种">
+      <el-table-column align="center" label="频道识别码">
         <template scope="scope">
           <span>{{scope.row.code}}</span>
         </template>
       </el-table-column>
-      <el-table-column  align="center" label="开奖号码">
+      <el-table-column  align="center" label="频道名称">
         <template scope="scope">
-          <span>{{scope.row.number}}</span>
+          <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column  align="center" label="期号">
+      <el-table-column  align="center" label="彩种识别码">
         <template scope="scope">
-          <span>{{scope.row.phase}}</span>
+          <span>{{scope.row.parentCode}}</span>
         </template>
       </el-table-column>
-      <el-table-column  align="center" label="开奖时间">
+      <el-table-column  align="center" label="彩种名称">
         <template scope="scope">
-          <span>{{scope.row.time}}</span>
+          <span>{{scope.row.parentName}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column  align="center" label="排序">
+        <template scope="scope">
+          <span>{{scope.row.sort}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column  align="center" label="更新时间">
+        <template scope="scope">
+          <span>{{scope.row.updateTime}}</span>
         </template>
       </el-table-column>
       <el-table-column fixed="right" align="center" label="操作">
@@ -58,22 +68,24 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" size="tiny">
       <el-form class="small-space" :model="formParam" :rules="rules" ref="formParam" label-position="left" label-width="120px">
-        <el-form-item label="彩种" prop="code">
-          <el-select clearable class="filter-item" filterable v-model="formParam.code" placeholder="彩种">
+        <el-form-item label="彩种识别码" prop="parentCode">
+          <el-select clearable class="filter-item" filterable  v-model="formParam.parentCode" placeholder="彩种识别码">
               <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key">
               </el-option>
             </el-select>
         </el-form-item>
-        <el-form-item label="开奖号码" prop="number">
-          <el-input v-model="formParam.number"></el-input>
-        </el-form-item>
-        <el-form-item label="期号" prop="phase">
-          <el-input v-model="formParam.phase"></el-input>
-        </el-form-item>
 
-        <el-form-item label="时间" prop="time">
-          <el-date-picker v-model="formParam.time" @change="timeChang" type="datetime" placeholder="选择日期时间">
-          </el-date-picker>
+        <el-form-item label="频道识别码" prop="code">
+          <el-input v-model="formParam.code"></el-input>
+        </el-form-item>
+        <el-form-item label="频道名称" prop="name">
+          <el-input v-model="formParam.name"></el-input>
+        </el-form-item>
+        <el-form-item label="彩种名称" prop="parentName">
+          <el-input v-model="formParam.parentName"></el-input>
+        </el-form-item>
+        <el-form-item label="排序" prop="sort">
+          <el-input v-model="formParam.sort"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -87,11 +99,11 @@
 </template>
 
 <script>
-    import {fetchList,historyAdd,historyUpdate,historyDel} from 'api/lotteryData'
+    import {channelList,channelAdd,channelUpdate,channelDel} from 'api/channel'
     import {lotteryList} from 'api/lottery'
 
     export default {
-      name: 'lotteryData',
+      name: 'channel',
       data() {
         return {
           list: null,
@@ -100,22 +112,24 @@
           listQuery: {
             page: 1,
             limit: 20,
-            code:''
+            parent_code:''
           },
           formParam: {
             id: undefined,
-            code:'',
-            number: '',
-            phase: '',
-            time: ''
+            code:'', //频道识别码
+            name: '', //频道名称
+            parentCode: '', //彩种识别码
+            parentName: '',//彩种名称
+            sort:''//排序
           },
           rules: {
-            code:[
+            parentCode:[
                 {required: true, message: '请选择彩种', trigger: 'change'}
             ],
-            number:[{required: true, message: '请输入开奖号码', trigger: 'blur' }],
-            phase:[{required: true, message: '请输入期号', trigger: 'blur' }],
-            time:[{type: 'string',required: true, message: '请选择开奖时间', trigger: 'change' }]
+            code:[{required: true, message: '请输入频道识别码', trigger: 'blur' }],
+            parentName:[{required: true, message: '请输入频道名称', trigger: 'blur' }],
+            name:[{required: true, message: '请输入彩种名称', trigger: 'blur' }],
+            sort:[{required: true, message: '请输入排序', trigger: 'blur' }]
           },
           calendarTypeOptions:null, //彩种
           dialogFormVisible: false,
@@ -133,7 +147,7 @@
         //获取数据列表
         getList() {
           this.listLoading = true;
-          fetchList(this.listQuery).then(response => {
+          channelList(this.listQuery).then(response => {
             let res = response.data;
             this.list = null;
             this.total = 0;
@@ -158,7 +172,7 @@
                 }
                 this.calendarTypeOptions = temp;
                 if(this.calendarTypeOptions.length > 0 ){
-                  this.listQuery.code = this.calendarTypeOptions[0]['key']
+                  this.listQuery.parent_code = this.calendarTypeOptions[0]['key']
                   this.getList();
                 }
               }
@@ -195,7 +209,7 @@
           let _this = this;
           this.$refs[formName].validate(function(valid){
               if (valid) {
-                  historyAdd(_this.formParam).then(response=>{
+                  channelAdd(_this.formParam).then(response=>{
                     _this.getList();
                     let res = response.data;
                     if(res.code == 1){
@@ -213,9 +227,10 @@
         },
         update(formName) {
           let _this = this;
+          this.formParam.updateTime && delete this.formParam.updateTime;
           this.$refs[formName].validate(function(valid){
               if (valid) {
-                  historyUpdate(_this.formParam).then(response=>{
+                  channelUpdate(_this.formParam).then(response=>{
                     _this.getList();
                     let res = response.data;
                     if(res.code == 1){
@@ -239,7 +254,7 @@
             cancelButtonText: '取消',
             type: 'warning'
             }).then(() => {
-              historyDel(row.id).then(response=>{
+              channelDel(row.id).then(response=>{
                  _this.getList();
                     let res = response.data;
                     if(res.code == 1){
@@ -258,10 +273,11 @@
         resetFormParam() {
           this.formParam = {
             id: undefined,
-            code:'',
-            number: '',
-            phase: '',
-            time: ''
+            code:'', //频道识别码
+            name: '', //频道名称
+            parentCode: '', //彩种识别码
+            parentName: '',//彩种名称
+            sort:''//排序
           };
         },
         timeChang(val) {

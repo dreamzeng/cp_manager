@@ -11,7 +11,7 @@ import NProgress from 'nprogress'; // Progress 进度条
 import 'nprogress/nprogress.css';// Progress 进度条 样式
 import 'normalize.css/normalize.css';// normalize.css 样式格式化
 import 'components/Icon-svg/index'; // 封装的svg组件
-import 'assets/iconfont/iconfont'; // iconfont
+import 'assets/iconfont/iconfont'; // iconfont 素材选用 http://iconfont.cn/
 import * as filters from './filters'; // 全局vue filter
 import Multiselect from 'vue-multiselect';// 使用的一个多选框组件，element-ui的select不能满足所有需求
 import 'vue-multiselect/dist/vue-multiselect.min.css';// 多选框组件css
