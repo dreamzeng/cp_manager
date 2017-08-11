@@ -29,7 +29,11 @@ const LotteryData  = _import('lotteryData/index');
 /* 彩种数据 */
 const Lottery = _import('lottery/index');
 /* 频道 */
-const Channel = _import('channel/index')
+const Channel = _import('channel/index');
+
+//文章
+const articleList = _import('article/list');
+const articleAdd = _import('article/add');
 
 Vue.use(Router);
 
@@ -100,6 +104,16 @@ export const asyncRouterMap = [
     icon:'location',
     children: [
         { path: 'index', component: Channel, name: '频道列表'}
+    ]
+  },{
+    path:'/article',
+    component:Layout,
+    redirect:'noredirect',
+    name:'文章管理',
+    icon:'feiji',
+    children:[
+      {path:'list',component:articleList,name:'文章列表'},
+      {path:'add',component:articleAdd,name:'新增文章'}
     ]
   },
   { path: '*', redirect: '/404', hidden: true }

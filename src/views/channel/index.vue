@@ -1,5 +1,6 @@
 <template>
   <div class="app-container calendar-list-container">
+    <!-- 搜索开始 -->
     <div class="filter-container">
       <el-form :inline="true" :model="listQuery">
         <el-form-item class="el-form-item-rest" label="彩种">
@@ -13,7 +14,9 @@
         <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="edit">添加</el-button>
       </el-form>
     </div>
+    <!-- 搜索结束 -->
 
+    <!-- 列表开始 -->
     <el-table :data="list" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">
       <el-table-column  align="center" label="id">
         <template scope="scope">
@@ -59,13 +62,16 @@
         </template>
       </el-table-column>
     </el-table>
-
+    
+    <!-- 分页 -->
     <div v-show="!listLoading" class="pagination-container">
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.page"
         :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
+    <!-- 搜索结束 -->
 
+    <!-- 信息编辑 -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" size="tiny">
       <el-form class="small-space" :model="formParam" :rules="rules" ref="formParam" label-position="left" label-width="120px">
         <el-form-item label="彩种识别码" prop="parentCode">

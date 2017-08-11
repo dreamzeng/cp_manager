@@ -5,7 +5,7 @@
 </template>
 
 <script>
-    // import { getToken, upload } from 'api/qiniu'; // 七牛
+    import { Message,MessageBox } from 'element-ui';
     export default {
       name: 'tinymce',
       props: {
@@ -21,7 +21,7 @@
           type: Array,
           required: false,
           default() {
-            return ['removeformat undo redo |  bullist numlist | outdent indent | forecolor | fullscreen code', 'bold italic blockquote | h2 p  media link | alignleft aligncenter alignright']
+            return ['emoticons | removeformat undo redo |  bullist numlist | outdent indent | forecolor | fullscreen code', 'bold italic blockquote | h2 p  media link | alignleft aligncenter alignright | image']
           }
         },
         data() {
@@ -53,11 +53,11 @@
           height: this.height,
           body_class: 'panel-body ',
           object_resizing: false,
-          //  language: 'zh_CN',
-          //  language_url: '/static/tinymce/langs/zh_CN.js',
+          language: 'zh_CN',
+          language_url: '/static/tinymce/langs/zh_CN.js',
           toolbar: this.toolbar,
           menubar: this.menubar,
-          plugins: 'advlist,autolink,code,paste,textcolor, colorpicker,fullscreen,link,lists,media,wordcount, imagetools,watermark',
+          plugins: 'advlist,autolink,code,paste,textcolor, colorpicker,fullscreen,link,lists,media,wordcount, imagetools,watermark,emoticons,image',
           end_container_on_empty_block: true,
           powerpaste_word_import: 'clean',
           code_dialog_height: 450,
@@ -69,6 +69,9 @@
           imagetools_toolbar: 'watermark',
           default_link_target: '_blank',
           link_title: false,
+
+          images_upload_url: 'postAcceptor.php',
+          
           init_instance_callback: editor => {
             if (_this.value) {
               editor.setContent(_this.value)
@@ -79,39 +82,54 @@
               this.$emit('input', editor.getContent({ format: 'raw' }));
             });
           },
-          // 整合七牛上传
-          // images_dataimg_filter(img) {
-          //   setTimeout(() => {
-          //     const $image = $(img);
-          //     $image.removeAttr('width');
-          //     $image.removeAttr('height');
-          //     if ($image[0].height && $image[0].width) {
-          //       $image.attr('data-wscntype', 'image');
-          //       $image.attr('data-wscnh', $image[0].height);
-          //       $image.attr('data-wscnw', $image[0].width);
-          //       $image.addClass('wscnph');
-          //     }
-          //   }, 0);
-          //   return img
-          // },
-          // images_upload_handler(blobInfo, success, failure, progress) {
-          //   progress(0);
-          //   const token = _this.$store.getters.token;
-          //   getToken(token).then(response => {
-          //     const url = response.data.qiniu_url;
-          //     const formData = new FormData();
-          //     formData.append('token', response.data.qiniu_token);
-          //     formData.append('key', response.data.qiniu_key);
-          //     formData.append('file', blobInfo.blob(), url);
-          //     upload(formData).then(() => {
-          //       success(url);
-          //       progress(100);
-          //     })
-          //   }).catch(err => {
-          //     failure('出现未知问题，刷新页面，或者联系程序员')
-          //     console.log(err);
-          //   });
-          // },
+          images_upload_handler(blobInfo, success, failure, progress) {
+            progress(0);
+            const token = _this.$store.getters.token;
+            const baseURL = process.env.BASE_API + '/upload/image';
+
+            let xhr, formData;
+            xhr = new XMLHttpRequest();
+            xhr.withCredentials = false;
+            xhr.open('POST', baseURL);
+            xhr.onload = function() {
+              let json;
+
+              if (xhr.status != 200) {
+                Message({
+                  message: xhr.status,
+                  type: 'error',
+                  duration: 5 * 1000
+                });
+                return;
+              }
+              json = JSON.parse(xhr.responseText);
+
+              if (!json || typeof json.data != 'string') {
+                Message({
+                  message: xhr.responseText,
+                  type: 'error',
+                  duration: 5 * 1000
+                });
+                return;
+              }
+              success(json.data);
+              progress(100);
+              
+            };
+             xhr.onerror = function () {
+                let json = r.responseText;
+                try {
+                    json = JSON.parse(r.responseText);
+                } catch (_e) {
+                    console.error(_e);
+                }
+                console.error(json);
+            };
+            formData = new FormData();
+            xhr.setRequestHeader('token', token);
+            formData.append('file', blobInfo.blob());
+            xhr.send(formData); 
+          },
           setup(editor) {
             editor.addButton('h2', {
               title: '小标题', // tooltip text seen on mouseover
