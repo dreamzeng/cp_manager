@@ -33,7 +33,7 @@ const Channel = _import('channel/index');
 
 //文章
 const articleList = _import('article/list');
-const articleAdd = _import('article/add');
+const articleEdit = _import('article/edit');
 
 Vue.use(Router);
 
@@ -113,7 +113,8 @@ export const asyncRouterMap = [
     icon:'feiji',
     children:[
       {path:'list',component:articleList,name:'文章列表'},
-      {path:'add',component:articleAdd,name:'新增文章'}
+      {path:'add',hidden: true,component:articleEdit,name:'新增文章'},
+      {path:'edit/:id',hidden: true,component:articleEdit,name:'修改文章',meta: { isEdit: true } }
     ]
   },
   { path: '*', redirect: '/404', hidden: true }

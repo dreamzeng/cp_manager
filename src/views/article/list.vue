@@ -15,7 +15,10 @@
         </el-form-item>
         
         <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
-        <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="edit">添加</el-button>
+        <router-link :to="{path: '/article/add'}">
+           <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="edit">添加</el-button>
+        </router-link>
+       
       </el-form>
     </div>
     <!-- 搜索结束 -->
@@ -211,39 +214,12 @@
           this.listQuery.page = val;
           this.getList();
         },
-        //创建
-        handleCreate() {
-          this.resetFormParam();
-          this.dialogStatus = 'create';
-          this.dialogFormVisible = true;
-        },
+
         //更新
         handleUpdate(row) {
-          this.formParam = Object.assign({}, row);
-          let temp = this.formParam.time;
-          this.dialogStatus = 'update';
-          this.dialogFormVisible = true;
+          this.$router.push({path: '/article/edit/', params: { id: row.id}});
         },
-        create(formName) {
-          let _this = this;
-          this.$refs[formName].validate(function(valid){
-              if (valid) {
-                  channelAdd(_this.formParam).then(response=>{
-                    _this.getList();
-                    let res = response.data;
-                    if(res.code == 1){
-                        _this.dialogFormVisible = false;
-                        _this.$notify({
-                          title: '成功',
-                          message: res.message,
-                          type: 'success',
-                          duration: 2000
-                        });
-                    }
-                })
-              }
-          })          
-        },
+
         update(formName) {
           let _this = this;
           this.formParam.updateTime && delete this.formParam.updateTime;
