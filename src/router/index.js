@@ -54,8 +54,8 @@ export const constantRouterMap = [
       path: '/',
       component: Layout,
       redirect: '/home',
-      name: '首页',
       hidden: true,
+      meta: {  title: '首页'},
       children: [{ path: 'home', component: home }]
     },
     
@@ -65,7 +65,7 @@ export const constantRouterMap = [
       redirect: '/introduction/index',
       icon: 'xinrenzhinan',
       noDropdown: true,
-      children: [{ path: 'index', component: Introduction, name: '简述' }]
+      children: [{ path: 'index', component: Introduction ,meta: {  title: '简述'}}]
     }
 ]
 
@@ -80,41 +80,41 @@ export const asyncRouterMap = [
     path: '/LotteryData',
     component: Layout,
     redirect: 'noredirect',
-    name: '开奖数据',
+    meta: {  title: '开奖数据'},
     icon: 'wujiaoxing',
     children: [
-        { path: 'index', component: LotteryData, name: '开奖列表'}
+        { path: 'index', component: LotteryData, meta: {  title: '开奖列表'}}
     ]
   },
   {
     path: '/Lottery',
     component: Layout,
     redirect: 'noredirect',
-    name: '彩种数据',
+    meta: {  title: '彩种数据'},
     icon: 'zonghe',
     children: [
-        { path: 'index', component: Lottery, name: '彩种列表'}
+        { path: 'index', component: Lottery, meta: {  title: '彩种列表'}}
     ]
   },
   {
     path: '/Channel',
     component:Layout,
     redirect:'noredirect',
-    name:'频道',
+    meta: {  title: '频道'},
     icon:'location',
     children: [
-        { path: 'index', component: Channel, name: '频道列表'}
+        { path: 'index', component: Channel,meta: {  title: '频道列表'}}
     ]
   },{
     path:'/article',
     component:Layout,
     redirect:'noredirect',
-    name:'文章管理',
+    meta: {  title: '文章管理'},
     icon:'feiji',
     children:[
-      {path:'list',component:articleList,name:'文章列表'},
-      {path:'add',hidden: true,component:articleEdit,name:'新增文章'},
-      {path:'edit/:id',hidden: true,component:articleEdit,name:'修改文章',meta: { isEdit: true } }
+      {path:'list',component:articleList,meta: {  title: '文章列表'}},
+      {path:'add',hidden: true,component:articleEdit,name:'article_add',meta: {  title: '新增文章',tabsHidden: true}},
+      {path:'edit/:id',hidden: true,component:articleEdit,name:'article_edit',meta: { isEdit: true, title: '修改文章',tabsHidden: true } }
     ]
   },
   { path: '*', redirect: '/404', hidden: true }

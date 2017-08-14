@@ -22,8 +22,9 @@
        </el-form-item>
 
        <el-form-item>
-        <el-button type="primary" @click="create('formParam')">提交</el-button>
-        <el-button @click="back">取消</el-button>
+        <el-button type="primary" @click="update('formParam')" :loading="dialogFormVisible" v-if="isEdit">编辑</el-button>
+        <el-button type="primary" @click="create('formParam')" :loading="dialogFormVisible" v-else>添加</el-button>
+        <el-button @click="back" :loading="dialogFormVisible" >取消</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -33,9 +34,10 @@
     import Tinymce from 'components/Tinymce';
     import {channelList} from 'api/channel';
     import {lotteryList} from 'api/lottery';
-    import {articleAdd} from 'api/article'
+    import {articleAdd,articleDetail,articleUpdate} from 'api/article'
 
     export default {
+      name: 'articleEdit',
       components: { Tinymce },
       data() {
         return {
@@ -57,16 +59,36 @@
           channelMap:{
             parent_code:''
           },
+          tempChannelCode:'',
           calendarTypeOptions:null, //彩种
           channelOptions:null,//频道识别码
+          dialogFormVisible:false
+        }
+      },
+      computed: {
+        isEdit() {
+          return this.$route.meta.isEdit // 根据meta判断
         }
       },
       created() {
-        this.channelList();
+        this.lotteryList();
       },
       methods: {
+        //获取详情
+        fetchData(){
+          let id = this.$route.params.id;
+          if(!id) return;
+          articleDetail(id).then(response=>{
+            let res = response.data;
+            if(res.code == 1){
+              this.formParam = Object.assign({}, res.data);
+              this.channelMap.parent_code = res.data.parentCode;
+              this.tempChannelCode = res.data.channelCode;
+            }
+          });
+        },
         //获取采种数据
-        channelList(){
+        lotteryList(){
           let lotterList = lotteryList().then(response=>{
               let res = response.data;
               if(res.code == 1){
@@ -79,7 +101,10 @@
                 }
                 this.calendarTypeOptions = temp;
                 if(this.calendarTypeOptions.length > 0 ){
-                  this.channelMap.parent_code = this.calendarTypeOptions[0]['key']
+                  this.channelMap.parent_code = this.calendarTypeOptions[0]['key'];
+                  if(this.isEdit) {
+                    this.fetchData();
+                  }
                 }
               }
           });
@@ -102,6 +127,10 @@
                     _this.channelOptions = temp;
                     if(_this.channelOptions.length > 0 ){
                         _this.formParam.channelCode = _this.channelOptions[0]['key'];
+                        if(_this.tempChannelCode != ''){
+                          _this.formParam.channelCode = _this.tempChannelCode;
+                          _this.tempChannelCode = '';
+                        }
                         cb();
                     } 
                 }
@@ -115,6 +144,7 @@
           let _this = this;
           this.$refs[formName].validate(function(valid){
               if (valid) {
+                  _this.dialogFormVisible = true;
                   articleAdd(_this.formParam).then(response=>{
                     let res = response.data;
                     if(res.code == 1){
@@ -130,6 +160,27 @@
                 })
               }
           })          
+        },
+        update(formName) {
+          let _this = this;
+          this.$refs[formName].validate(function(valid){
+              if (valid) {
+                  _this.dialogFormVisible = true;
+                  articleUpdate(_this.formParam).then(response=>{
+                    let res = response.data;
+                    if(res.code == 1){
+                        _this.dialogFormVisible = false;
+                        _this.$notify({
+                          title: '成功',
+                          message: res.message,
+                          type: 'success',
+                          duration: 2000
+                        });
+                       _this.back();   
+                    }
+                })
+              }
+          })  
         },
         back:function(){
             this.$router.go(-1);

@@ -1,9 +1,17 @@
 <template>
   <div class="app-container calendar-list-container">
+
+    <div style="text-align: right;margin-bottom: 12px;border-bottom: 1px solid #eff2f7;padding-bottom: 12px;">
+      <router-link :to="{name: 'article_add'}">
+          <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="edit">添加</el-button>
+      </router-link>
+      <el-button type="danger" icon="delete" @click="handleDeleteAll">批量删除</el-button>
+    </div>
+
     <!-- 搜索开始 -->
     <div class="filter-container">
       <el-form :inline="true" :model="listQuery">
-        <el-form-item class="el-form-item-rest" label="频道识别码">
+        <el-form-item class="el-form-item-rest" label="频道识别码" >
             <el-select clearable class="filter-item" v-model="channelMap.parent_code" placeholder="彩种" @change="selectChange">
               <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key">
               </el-option>
@@ -15,16 +23,16 @@
         </el-form-item>
         
         <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
-        <router-link :to="{path: '/article/add'}">
-           <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="edit">添加</el-button>
-        </router-link>
+        
        
       </el-form>
     </div>
     <!-- 搜索结束 -->
 
     <!-- 列表开始 -->
-    <el-table :data="list" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">
+    <el-table :data="list" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%"  @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55">
+      </el-table-column>
       <el-table-column  align="center" label="id">
         <template scope="scope">
           <span>{{scope.row.id}}</span>
@@ -52,35 +60,6 @@
     </div>
     <!-- 搜索结束 -->
 
-    <!-- 信息编辑 -->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" size="tiny">
-      <el-form class="small-space" :model="formParam" :rules="rules" ref="formParam" label-position="left" label-width="120px">
-        <el-form-item label="彩种识别码" prop="parentCode">
-          <el-select clearable class="filter-item" filterable  v-model="formParam.parentCode" placeholder="彩种识别码">
-              <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key">
-              </el-option>
-            </el-select>
-        </el-form-item>
-
-        <el-form-item label="频道识别码" prop="code">
-          <el-input v-model="formParam.code"></el-input>
-        </el-form-item>
-        <el-form-item label="频道名称" prop="name">
-          <el-input v-model="formParam.name"></el-input>
-        </el-form-item>
-        <el-form-item label="彩种名称" prop="parentName">
-          <el-input v-model="formParam.parentName"></el-input>
-        </el-form-item>
-        <el-form-item label="排序" prop="sort">
-          <el-input v-model="formParam.sort"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="create('formParam')">确 定</el-button>
-        <el-button v-else type="primary" @click="update('formParam')">确 定</el-button>
-      </div>
-    </el-dialog>
 
   </div>
 </template>
@@ -89,8 +68,7 @@
     import {channelList} from 'api/channel'
     import {lotteryList} from 'api/lottery'
 
-
-    import {articleList} from 'api/article'
+    import {articleList,articleDel,articleDelBatch} from 'api/article'
 
     export default {
       name: 'article',
@@ -127,17 +105,15 @@
           },
           calendarTypeOptions:null, //彩种
           channelOptions:null,//频道识别码
-
-          dialogFormVisible: false,
-          dialogStatus: '',
           textMap: {
             update: '编辑',
             create: '创建'
-          }
+          },
+          ids:null
         }
       },
       created() {
-       this.channelList();
+       this.lotteryList();
       },
       methods: {
         //获取数据列表
@@ -155,7 +131,7 @@
           })
         },
         //获取采种数据
-        channelList(){
+        lotteryList(){
           let lotterList = lotteryList().then(response=>{
               let res = response.data;
               if(res.code == 1){
@@ -217,30 +193,9 @@
 
         //更新
         handleUpdate(row) {
-          this.$router.push({path: '/article/edit/', params: { id: row.id}});
+          this.$router.push({name: 'article_edit', params: { id: row.id}});
         },
 
-        update(formName) {
-          let _this = this;
-          this.formParam.updateTime && delete this.formParam.updateTime;
-          this.$refs[formName].validate(function(valid){
-              if (valid) {
-                  channelUpdate(_this.formParam).then(response=>{
-                    _this.getList();
-                    let res = response.data;
-                    if(res.code == 1){
-                        _this.dialogFormVisible = false;
-                        _this.$notify({
-                          title: '成功',
-                          message: res.message,
-                          type: 'success',
-                          duration: 2000
-                        });
-                    }
-                })
-              }
-          })  
-        },
          // 删除
         handleDelete(row) {
             let _this = this;
@@ -249,7 +204,7 @@
             cancelButtonText: '取消',
             type: 'warning'
             }).then(() => {
-              channelDel(row.id).then(response=>{
+              articleDel(row.id).then(response=>{
                  _this.getList();
                     let res = response.data;
                     if(res.code == 1){
@@ -265,18 +220,41 @@
 
             });
         },
-        resetFormParam() {
-          this.formParam = {
-            id: undefined,
-            code:'', //频道识别码
-            name: '', //频道名称
-            parentCode: '', //彩种识别码
-            parentName: '',//彩种名称
-            sort:''//排序
-          };
+        handleDeleteAll() {
+            let _this = this;
+            let ids = this.ids;
+            if(ids==null||ids==''){
+              this.$message.error('请选择要删除的项目！');
+               return;
+            }
+            this.$confirm('确认删除 ID：'+ids+'？', '确定删除', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+            }).then(() => {
+              articleDelBatch(ids).then(response=>{
+                 _this.getList();
+                    let res = response.data;
+                    if(res.code == 1){
+                      this.ids = null;
+                      _this.$notify({
+                        title: '成功',
+                        message: res.message,
+                        type: 'success',
+                        duration: 2000
+                      });
+                    }
+              });
+            }).catch(() => {
+
+            });
         },
-        timeChang(val) {
-            this.formParam.time = val;
+        handleSelectionChange(items) {
+          let ids = [];
+          for(let i=0,l=items.length;i<l;i++){
+            ids.push(items[i]['id']);
+          }
+          this.ids = ids.join(',');
         }
       }
     }

@@ -2,7 +2,7 @@
   <div class='tabs-view-container'>
     <router-link class="tabs-view" v-for="tag in Array.from(visitedViews)" :to="tag.path" :key="tag.path">
       <el-tag :closable="true" :type="isActive(tag.path)?'primary':''" @close='closeViewTabs(tag,$event)'>
-        {{tag.name}}
+        {{tag.meta.title}}
       </el-tag>
     </router-link>
   </div>
@@ -17,17 +17,22 @@
     },
     methods: {
       closeViewTabs(view, $event) {
-        this.$store.dispatch('delVisitedViews', view)
+        this.$store.dispatch('delVisitedViews', view);
         $event.preventDefault()
       },
       generateRoute() {
-        if (this.$route.matched[this.$route.matched.length - 1].name) {
+        let matched = this.$route.matched[this.$route.matched.length - 1];
+        if (matched.meta.title) {
           return this.$route.matched[this.$route.matched.length - 1]
         }
         this.$route.matched[0].path = '/'
         return this.$route.matched[0]
       },
       addViewTabs() {
+        let matched = this.$route.matched[this.$route.matched.length - 1];
+        if(matched.meta.tabsHidden){
+          return ;
+        }
         this.$store.dispatch('addVisitedViews', this.generateRoute())
       },
       isActive(path) {
