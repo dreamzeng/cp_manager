@@ -1,7 +1,7 @@
 <template>
   <div class="app-container calendar-list-container">
 
-    <div style="text-align: right;margin-bottom: 12px;border-bottom: 1px solid #eff2f7;padding-bottom: 12px;">
+    <div class="headRight">
       <router-link :to="{name: 'article_add'}">
           <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="edit">添加</el-button>
       </router-link>
@@ -21,10 +21,7 @@
               </el-option>
             </el-select>
         </el-form-item>
-        
         <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
-        
-       
       </el-form>
     </div>
     <!-- 搜索结束 -->
@@ -58,7 +55,7 @@
         :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
-    <!-- 搜索结束 -->
+    <!-- 分页结束 -->
 
 
   </div>
